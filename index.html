@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE — AI Performance Coach</title>
+<meta name="description" content="Personalised training, full nutrition, and a fitness AI that learns your data and coaches you like it knows you. Free 7-day trial.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--surface:#111111;--surface2:#1a1a1a;--border:#222222;
+  --accent:#e8ff3d;--accent2:#ff6b35;--text:#f0f0f0;--muted:#666666;
+  --red:#ff4444;--green:#39d98a;--accent-pressed:#d4eb1e;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-logo{display:flex;align-items:baseline;gap:8px}
+.nav-logo-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:var(--accent)}
+.nav-logo-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.nav-right{display:flex;align-items:center;gap:12px}
+.currency-select{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;padding:7px 10px;border-radius:6px;cursor:pointer;outline:none}
+.currency-select:focus{border-color:var(--accent)}
+.nav-cta{background:var(--accent);color:var(--bg);border:none;border-radius:6px;padding:9px 18px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
+.nav-cta:hover{background:var(--accent-pressed);box-shadow:0 4px 20px rgba(232,255,61,0.3)}
+
+/* ── LANG DRAWER ── */
+.lang-drawer{position:fixed;top:56px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;z-index:1001;min-width:180px;overflow:hidden;display:none}
+.lang-drawer.open{display:block}
+.lang-option{padding:10px 16px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.1s}
+.lang-option:hover{background:var(--surface2)}
+
+/* ── SECTIONS ── */
+.section{width:100%;padding:96px 24px}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+.section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,56px);letter-spacing:2px;line-height:1.1;margin-bottom:20px}
+.section-body{font-size:16px;color:var(--muted);line-height:1.8;max-width:640px;margin-bottom:40px}
+
+/* ── HERO ── */
+.hero{padding:140px 24px 96px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(232,255,61,0.04) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,7vw,84px);letter-spacing:3px;line-height:1.0;color:var(--accent);margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:580px;margin:0 auto 16px;line-height:1.7}
+.hero-trust{font-family:'DM Mono',monospace;font-size:11px;color:#444;letter-spacing:1px;margin-bottom:40px}
+
+/* ── AUTH BOX ── */
+.auth-wrap{max-width:400px;margin:0 auto}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:28px 24px;position:relative}
+.auth-card::before{content:'';position:absolute;top:-1px;left:-1px;width:16px;height:16px;border-top:2px solid var(--accent);border-left:2px solid var(--accent);border-radius:0}
+.auth-card::after{content:'';position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-bottom:2px solid var(--accent);border-right:2px solid var(--accent);border-radius:0}
+.auth-tabs{display:flex;background:var(--bg);border-radius:8px;padding:4px;gap:4px;margin-bottom:24px;border:1px solid var(--border)}
+.auth-tab{flex:1;padding:9px 10px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;border-radius:6px;transition:all 0.15s}
+.auth-tab.active{color:var(--bg);background:var(--accent);font-weight:700;letter-spacing:1.5px}
+.field-group{margin-bottom:16px}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.field-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.15s}
+.field-input:focus{border-color:var(--accent)}
+.auth-btn{width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:6px;padding:15px;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;margin-top:4px}
+.auth-btn:hover{box-shadow:0 6px 32px rgba(232,255,61,0.35)}
+.auth-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:0.5px}
+.auth-note a{color:var(--accent);cursor:pointer;text-decoration:none}
+.auth-error{color:var(--red);font-size:12px;margin-top:8px;font-family:'DM Mono',monospace;display:none}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px}
+
+/* ── GRID CARDS ── */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card-q{font-size:15px;font-weight:500;color:var(--accent);margin-bottom:10px;line-height:1.4}
+.card-a{font-size:14px;color:var(--muted);line-height:1.7;font-style:italic}
+.card-body{font-size:14px;color:var(--muted);line-height:1.7}
+.card-title{font-size:15px;font-weight:600;color:var(--accent);margin-bottom:8px}
+
+/* ── TESTIMONIALS ── */
+.testimonial-quote{font-size:14px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:16px}
+.testimonial-attr{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:rgba(232,255,61,0.1);border:1px solid rgba(232,255,61,0.2);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.attr-name{font-size:13px;font-weight:600;color:var(--text)}
+.attr-ctx{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* ── PT ANCHOR BAR ── */
+.pt-bar{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:40px 24px;text-align:center}
+.pt-bar-line1{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,3.5vw,36px);color:var(--accent);letter-spacing:1px;margin-bottom:8px}
+.pt-bar-line2{font-size:14px;color:var(--muted)}
+
+/* ── PRICING ── */
+.pricing-meta{text-align:center;margin-bottom:32px}
+.pricing-sub{font-size:14px;color:var(--muted);margin-bottom:8px}
+.pricing-currency-note{font-family:'DM Mono',monospace;font-size:11px;color:#444;letter-spacing:0.5px}
+.pricing-currency-note a{color:var(--muted);cursor:pointer;text-decoration:underline}
+.billing-toggle{display:flex;align-items:center;justify-content:center;gap:14px;margin:20px 0}
+.toggle-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted)}
+.toggle-label.active{color:var(--text)}
+.toggle-pill{width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:background 0.2s;background:var(--accent)}
+.toggle-knob{position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#000;transition:left 0.2s;left:25px}
+.toggle-pill.monthly .toggle-knob{left:3px}
+.toggle-pill.monthly{background:var(--border)}
+.save-badge{background:rgba(232,255,61,0.12);border:1px solid rgba(232,255,61,0.3);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--accent);font-family:'DM Mono',monospace}
+
+.tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.tier-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:24px;position:relative;transition:all 0.2s}
+.tier-card.recommended{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.03);box-shadow:0 4px 30px rgba(255,255,255,0.06),0 0 0 1px rgba(255,255,255,0.04) inset;transform:scale(1.02)}
+.tier-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:1px;white-space:nowrap;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;box-shadow:0 2px 12px rgba(255,215,0,0.3)}
+.tier-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.tier-tagline{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.4}
+.tier-price-main{font-size:26px;font-weight:700;color:var(--accent)}
+.tier-price-period{font-size:11px;color:var(--muted)}
+.tier-price-note{font-size:11px;color:var(--muted);margin:4px 0 16px;font-family:'DM Mono',monospace}
+.tier-features{margin-bottom:20px}
+.tier-feature{display:flex;gap:8px;padding:4px 0;font-size:13px;color:rgba(240,240,240,0.8)}
+.tier-check{color:var(--accent);flex-shrink:0;font-size:13px}
+.tier-btn{display:block;width:100%;padding:13px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-align:center;border:none;transition:all 0.15s}
+.tier-btn.primary{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;box-shadow:0 4px 20px rgba(255,215,0,0.25)}
+.tier-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.tier-btn:hover{transform:scale(0.99)}
+
+/* ── OBJECTIONS ── */
+.objection-cards{display:flex;flex-direction:column;gap:16px}
+.obj-q{font-size:15px;font-weight:500;color:var(--accent);margin-bottom:10px}
+.obj-a{font-size:14px;color:var(--muted);line-height:1.8}
+
+/* ── FINAL CTA ── */
+.final-cta{text-align:center}
+.final-cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:2px;color:var(--accent);margin-bottom:16px}
+.final-cta-body{font-size:16px;color:var(--muted);margin-bottom:40px;line-height:1.8}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--border);padding:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-left{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.footer-right{display:flex;gap:20px}
+.footer-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-decoration:none;text-transform:uppercase;transition:color 0.15s}
+.footer-link:hover{color:var(--text)}
+
+/* ── DIVIDER ── */
+.section-divider{width:100%;height:1px;background:var(--border)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .nav{padding:0 16px}
+  .nav-logo-sub{display:none}
+  .grid-2,.tier-cards{grid-template-columns:1fr}
+  .tier-card.recommended{transform:none}
+  .section{padding:64px 16px}
+  .hero{padding:100px 16px 64px}
+  .billing-toggle{flex-wrap:wrap}
+  .footer{flex-direction:column;text-align:center}
+  .footer-right{justify-content:center}
+}
+@media(max-width:480px){
+  .grid-3{grid-template-columns:1fr}
+  .nav-right{gap:8px}
+  .currency-select{font-size:10px;padding:6px 8px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <span class="nav-logo-name">FORGE</span>
+    <span class="nav-logo-sub">AI Performance Coach</span>
+  </div>
+  <div class="nav-right">
+    <select class="currency-select" id="currencySelect" onchange="setCurrency(this.value)">
+      <option value="CHF">CHF — Switzerland</option>
+      <option value="GBP">GBP — United Kingdom</option>
+      <option value="EUR">EUR — Europe</option>
+      <option value="USD">USD — United States</option>
+    </select>
+    <!-- Language selector -->
+    <button id="langBtn" onclick="toggleLangDrawer()" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;cursor:pointer;font-size:16px;color:var(--text);line-height:1">🇬🇧</button>
+    <button class="nav-cta" onclick="scrollToAuth()">Start free trial</button>
+  </div>
+</nav>
+
+<!-- LANG DRAWER -->
+<div id="langDrawer" class="lang-drawer">
+  <div class="lang-option" onclick="selectLang('en')">🇬🇧 English</div>
+  <div class="lang-option" onclick="selectLang('es')">🇪🇸 Español</div>
+  <div class="lang-option" onclick="selectLang('fr')">🇫🇷 Français</div>
+  <div class="lang-option" onclick="selectLang('de')">🇩🇪 Deutsch</div>
+  <div class="lang-option" onclick="selectLang('it')">🇮🇹 Italiano</div>
+  <div class="lang-option" onclick="selectLang('pt')">🇧🇷 Português</div>
+  <div class="lang-option" onclick="selectLang('nl')">🇳🇱 Nederlands</div>
+  <div class="lang-option" onclick="selectLang('uk')">🇺🇦 Українська</div>
+  <div class="lang-option" onclick="selectLang('fi')">🇫🇮 Suomi</div>
+  <div class="lang-option" onclick="selectLang('ar')">🇸🇦 العربية</div>
+  <div class="lang-option" onclick="selectLang('zh')">🇨🇳 中文</div>
+  <div class="lang-option" onclick="selectLang('ja')">🇯🇵 日本語</div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-eyebrow">AI Performance Coach</div>
+  <h1>Your AI performance coach.<br>Smarter than a plan.<br>Cheaper than a trainer.</h1>
+  <p class="hero-sub">Personalised training, full nutrition, and a fitness AI that learns your data, adapts to your progress, and coaches you like it knows you. Built in under 2 minutes.</p>
+  <div class="hero-trust">7-day free trial · Cancel anytime · 30-day money back</div>
+
+  <div class="auth-wrap" id="hero-auth">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-signup-hero" onclick="switchTab('hero','signup')">Create account</div>
+        <div class="auth-tab" id="tab-signin-hero" onclick="switchTab('hero','signin')">Sign in</div>
+      </div>
+      <!-- SIGNUP -->
+      <div id="form-signup-hero">
+        <div class="field-group"><div class="field-label">Full Name</div><input class="field-input" type="text" id="hero-name" placeholder="Your name"></div>
+        <div class="field-group"><div class="field-label">Email</div><input class="field-input" type="email" id="hero-email" placeholder="your@email.com"></div>
+        <div class="field-group"><div class="field-label">Password</div><div style="position:relative"><input class="field-input" type="password" id="hero-password" placeholder="Min. 6 characters" style="padding-right:44px"><button class="pw-toggle" onclick="togglePw('hero-password',this)" type="button">👁</button></div></div>
+        <div class="field-group" style="margin-top:4px"><input class="field-input" type="text" id="hero-code" placeholder="Have a code? Enter it here" style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="auth-error" id="hero-signup-error"></div>
+        <button class="auth-btn" onclick="doSignup('hero')" style="margin-top:12px">Create account — start free trial</button>
+        <div class="auth-note">7 days free. Card required after trial ends.</div>
+      </div>
+      <!-- SIGNIN -->
+      <div id="form-signin-hero" style="display:none">
+        <div class="field-group"><div class="field-label">Email</div><input class="field-input" type="email" id="hero-signin-email" placeholder="your@email.com"></div>
+        <div class="field-group"><div class="field-label">Password</div><div style="position:relative"><input class="field-input" type="password" id="hero-signin-password" placeholder="Your password" style="padding-right:44px"><button class="pw-toggle" onclick="togglePw('hero-signin-password',this)" type="button">👁</button></div></div>
+        <div class="auth-error" id="hero-signin-error"></div>
+        <button class="auth-btn" onclick="doSignin('hero')">Sign in</button>
+        <div class="auth-note">No account yet? <a onclick="switchTab('hero','signup')">Start your free trial</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PROBLEM -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">The problem</div>
+    <h2>You're putting in the work.<br>You're just not seeing the results.</h2>
+    <p class="section-body">Every app gives you the same plan. No one asks about your sport, your schedule, your injuries. You follow it for two weeks and quit because it doesn't feel like it was built for you. Because it wasn't.</p>
+    <div class="grid-2">
+      <div class="card"><p class="card-a">"I go to the gym but I'm basically making it up as I go."</p></div>
+      <div class="card"><p class="card-a">"Three apps. Three generic programmes. Zero real results."</p></div>
+      <div class="card"><p class="card-a">"A PT would be great. I just can't justify the cost per session."</p></div>
+      <div class="card"><p class="card-a">"I need something that works around my sport, not against it."</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WHAT FORGE DOES -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">What FORGE does</div>
+    <h2>A coach that coaches.<br>Not just a plan that sits there.</h2>
+    <p class="section-body">FORGE uses a specialised fitness AI agent trained on your stats, your sessions, and your goals. The more you use it, the more precisely it coaches you.</p>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">Your coach reviews every session</div><div class="card-body">Weekly AI performance review tells you exactly what to change and why. Your data. Your programme. Your next move.</div></div>
+      <div class="card"><div class="card-title">Plans built around your life</div><div class="card-body">Your sport, your schedule, your equipment, your limitations. FORGE asks the questions a real coach would ask — then builds accordingly.</div></div>
+      <div class="card"><div class="card-title">Nutrition that fits your training</div><div class="card-body">AI-generated nutrition plan built alongside your programme. Not a calorie counter. A system that works with your goals.</div></div>
+      <div class="card"><div class="card-title">Catches overtraining before you do</div><div class="card-body">Deload detection and alerts. Your AI coach notices when you need to back off before your body forces you to.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">What people are saying</div>
+    <h2>Real users. Real results.</h2>
+    <p class="section-body" style="margin-bottom:32px">Early access members training with FORGE from day one.</p>
+    <div class="grid-2" id="testimonialGrid">
+      <div class="card"><p class="testimonial-quote">"Built me a full programme in under 2 minutes. I've tried four other apps. This is the first one that felt like it actually knew what I needed."</p><div class="testimonial-attr"><div class="avatar">JM</div><div><div class="attr-name">James M.</div><div class="attr-ctx">Training for football season</div></div></div></div>
+      <div class="card"><p class="testimonial-quote">"The AI checked in after my first session and already adjusted my plan. I've never had an app do that. It actually feels like someone's watching your progress."</p><div class="testimonial-attr"><div class="avatar">SR</div><div><div class="attr-name">Sophie R.</div><div class="attr-ctx">Building around marathon training</div></div></div></div>
+      <div class="card"><p class="testimonial-quote">"I was sceptical about AI coaching. Ten days in and my lifts are already progressing in a way they weren't after three months of doing it myself."</p><div class="testimonial-attr"><div class="avatar">DK</div><div><div class="attr-name">Daniel K.</div><div class="attr-ctx">Intermediate lifter, hypertrophy goal</div></div></div></div>
+      <div class="card"><p class="testimonial-quote">"The nutrition plan it gave me actually works around my training days. Not a generic meal plan — it knows when I train and what I need before and after."</p><div class="testimonial-attr"><div class="avatar">AL</div><div><div class="attr-name">Anya L.</div><div class="attr-ctx">Fitness and body composition</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PT ANCHOR BAR -->
+<div class="pt-bar">
+  <div class="pt-bar-line1">One PT session costs more than 14 months of FORGE Steel annual.</div>
+  <div class="pt-bar-line2">A single hour with a personal trainer vs a full AI coaching system. The gap is closing.</div>
+</div>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-label" style="text-align:center">Pricing</div>
+    <h2 style="text-align:center">Choose your level.</h2>
+    <div class="pricing-meta">
+      <div class="pricing-sub">Start free for 7 days. No commitment until you're ready.</div>
+      <div class="pricing-currency-note">Showing prices in <span id="currencyLabel">CHF</span> — <a onclick="document.getElementById('currencySelect').focus()">change currency</a></div>
+    </div>
+    <div class="billing-toggle">
+      <span class="toggle-label" id="lbl-monthly">Monthly</span>
+      <div class="toggle-pill" id="billingToggle" onclick="toggleBilling()"><div class="toggle-knob"></div></div>
+      <span class="toggle-label active" id="lbl-annual">Annual <span class="save-badge">2 months free</span></span>
+    </div>
+    <div class="tier-cards">
+      <!-- IRON -->
+      <div class="tier-card">
+        <div class="tier-name">⚙️ Iron</div>
+        <div class="tier-tagline">Start training with a real plan.</div>
+        <div class="tier-price-main" id="iron-price">CHF 6.99<span class="tier-price-period">/mo</span></div>
+        <div class="tier-price-note" id="iron-note">billed CHF 83.88/year</div>
+        <div class="tier-features">
+          <div class="tier-feature"><span class="tier-check">✓</span><span>AI fitness agent — 20 messages/month</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>AI-generated workout programme</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>AI-generated nutrition plan</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Workout logging (per-set)</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Streak tracking &amp; badges</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Personal records detection</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>5 themes · 12 languages</span></div>
+        </div>
+        <button class="tier-btn secondary" onclick="scrollToAuth()">Start free trial</button>
+      </div>
+      <!-- STEEL -->
+      <div class="tier-card recommended">
+        <div class="tier-badge">RECOMMENDED</div>
+        <div class="tier-name">🔩 Steel</div>
+        <div class="tier-tagline">Full coaching. No PT required.</div>
+        <div class="tier-price-main" id="steel-price">CHF 9.99<span class="tier-price-period">/mo</span></div>
+        <div class="tier-price-note" id="steel-note">billed CHF 119.88/year</div>
+        <div class="tier-features">
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Everything in Iron</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Unlimited AI fitness agent messages</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Weekly AI performance review</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Post-workout AI check-in</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Progressive overload tracker</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Body metrics &amp; AI insights</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Plan editing via AI chat</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Deload detection &amp; alerts</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Weekly shopping list</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Multiple saved programmes</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Workout history export</span></div>
+        </div>
+        <button class="tier-btn primary" onclick="scrollToAuth()">Start free trial</button>
+      </div>
+      <!-- FORGE -->
+      <div class="tier-card">
+        <div class="tier-name">🔥 Forge</div>
+        <div class="tier-tagline">Maximum performance. Monthly AI coaching review included.</div>
+        <div class="tier-price-main" id="forge-price">CHF 13.99<span class="tier-price-period">/mo</span></div>
+        <div class="tier-price-note" id="forge-note">billed CHF 167.88/year</div>
+        <div class="tier-features">
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Everything in Steel</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Monthly AI deep-dive coaching review</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Exercise video demonstrations</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Nutrition barcode scanner <span style="background:rgba(255,255,255,0.08);color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;padding:1px 6px;border-radius:4px">SOON</span></span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Wearable sync — Apple / Garmin <span style="background:rgba(255,255,255,0.08);color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;padding:1px 6px;border-radius:4px">SOON</span></span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Priority support</span></div>
+          <div class="tier-feature"><span class="tier-check">✓</span><span>Early access to new features</span></div>
+        </div>
+        <button class="tier-btn secondary" onclick="scrollToAuth()">Start free trial</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- OBJECTIONS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">Common questions</div>
+    <h2>The things people ask<br>before they sign up.</h2>
+    <div class="objection-cards">
+      <div class="card"><div class="obj-q">"I've been burned by personalised apps before. They all give everyone the same thing."</div><div class="obj-a">FORGE uses a specialised fitness AI agent — not a generic chatbot, not a decision tree. It's trained on your stats and adapts as your data grows. The onboarding asks what no other app does: your sport, your schedule, your injury history, your actual goal. Try it. You'll feel the difference in the first five minutes.</div></div>
+      <div class="card"><div class="obj-q">"Is AI coaching actually as good as a real trainer?"</div><div class="obj-a">The honest answer: it depends what you're comparing it to. Better than no coaching at all, better than generic apps, and available at 2am when you have a question? Yes. Most people aren't choosing between FORGE and a £200/month coach. They're choosing between FORGE and nothing. For that comparison, it's not even close.</div></div>
+      <div class="card"><div class="obj-q">"I'll sign up and stop using it after two weeks."</div><div class="obj-a">FORGE checks in after every session, sends weekly performance reviews, and detects when you're overtraining before you burn out. It's built to keep you in the habit — not just hand you a plan and wish you luck. Try it free for 7 days. If it doesn't hook you, cancel. No questions.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FINAL CTA -->
+<section class="section final-cta" id="final-cta">
+  <div class="section-inner" style="max-width:560px;margin:0 auto;text-align:center">
+    <h2>Stop making it up as you go.</h2>
+    <div class="final-cta-body">Your programme is built in under 2 minutes.<br>Your AI coach is online right now.</div>
+    <div class="auth-wrap" id="final-auth">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-signup-final" onclick="switchTab('final','signup')">Create account</div>
+          <div class="auth-tab" id="tab-signin-final" onclick="switchTab('final','signin')">Sign in</div>
+        </div>
+        <div id="form-signup-final">
+          <div class="field-group"><div class="field-label">Full Name</div><input class="field-input" type="text" id="final-name" placeholder="Your name"></div>
+          <div class="field-group"><div class="field-label">Email</div><input class="field-input" type="email" id="final-email" placeholder="your@email.com"></div>
+          <div class="field-group"><div class="field-label">Password</div><div style="position:relative"><input class="field-input" type="password" id="final-password" placeholder="Min. 6 characters" style="padding-right:44px"><button class="pw-toggle" onclick="togglePw('final-password',this)" type="button">👁</button></div></div>
+          <div class="field-group" style="margin-top:4px"><input class="field-input" type="text" id="final-code" placeholder="Have a code? Enter it here" style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+          <div class="auth-error" id="final-signup-error"></div>
+          <button class="auth-btn" onclick="doSignup('final')" style="margin-top:12px">Create account — start free trial</button>
+          <div class="auth-note">7 days free. Card required after trial ends.</div>
+        </div>
+        <div id="form-signin-final" style="display:none">
+          <div class="field-group"><div class="field-label">Email</div><input class="field-input" type="email" id="final-signin-email" placeholder="your@email.com"></div>
+          <div class="field-group"><div class="field-label">Password</div><div style="position:relative"><input class="field-input" type="password" id="final-signin-password" placeholder="Your password" style="padding-right:44px"><button class="pw-toggle" onclick="togglePw('final-signin-password',this)" type="button">👁</button></div></div>
+          <div class="auth-error" id="final-signin-error"></div>
+          <button class="auth-btn" onclick="doSignin('final')">Sign in</button>
+          <div class="auth-note">No account yet? <a onclick="switchTab('final','signup')">Start your free trial</a></div>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:#444;letter-spacing:0.5px;margin-top:16px">No commitment until after your trial · Cancel anytime · 30-day money back</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-left">FORGE · AI Performance Coach</div>
+  <div class="footer-right">
+    <a class="footer-link" href="#">Privacy</a>
+    <a class="footer-link" href="#">Terms</a>
+    <a class="footer-link" href="mailto:hello@klemforge.com">Contact</a>
+  </div>
+</footer>
+
+<script>
+const BACKEND_URL = 'https://forge-staging-production.up.railway.app';
+
+// ── CURRENCY ──────────────────────────────────────────
+const PRICES = {
+  CHF: { sym:'CHF ', iron:{mo:9.99,ann:6.99,billed:83.88}, steel:{mo:13.99,ann:9.99,billed:119.88}, forge:{mo:19.99,ann:13.99,billed:167.88} },
+  GBP: { sym:'£',   iron:{mo:8.99,ann:5.99,billed:71.88},  steel:{mo:11.99,ann:8.99,billed:107.88}, forge:{mo:17.99,ann:12.99,billed:155.88} },
+  EUR: { sym:'€',   iron:{mo:9.49,ann:6.49,billed:77.88},  steel:{mo:12.99,ann:8.99,billed:107.88}, forge:{mo:18.99,ann:13.49,billed:161.88} },
+  USD: { sym:'$',   iron:{mo:9.99,ann:6.99,billed:83.88},  steel:{mo:13.99,ann:9.99,billed:119.88}, forge:{mo:19.99,ann:13.99,billed:167.88} },
+};
+
+let currency = 'CHF';
+let isAnnual = true;
+
+function setCurrency(c) {
+  currency = c;
+  document.getElementById('currencyLabel').textContent = c;
+  updatePrices();
+}
+
+function toggleBilling() {
+  isAnnual = !isAnnual;
+  const pill = document.getElementById('billingToggle');
+  pill.classList.toggle('monthly', !isAnnual);
+  document.getElementById('lbl-monthly').classList.toggle('active', !isAnnual);
+  document.getElementById('lbl-annual').classList.toggle('active', isAnnual);
+  updatePrices();
+}
+
+function fmt(sym, n) { return sym + n.toFixed(2).replace('.00',''); }
+
+function updatePrices() {
+  const p = PRICES[currency];
+  const s = p.sym;
+  ['iron','steel','forge'].forEach(tier => {
+    const t = p[tier];
+    const priceEl = document.getElementById(tier + '-price');
+    const noteEl = document.getElementById(tier + '-note');
+    if (isAnnual) {
+      priceEl.innerHTML = fmt(s, t.ann) + '<span class="tier-price-period">/mo</span>';
+      noteEl.textContent = 'billed ' + fmt(s, t.billed) + '/year';
+    } else {
+      priceEl.innerHTML = fmt(s, t.mo) + '<span class="tier-price-period">/mo</span>';
+      noteEl.textContent = fmt(s, t.ann) + '/mo if annual';
+    }
+  });
+}
+
+// ── LANGUAGE ─────────────────────────────────────────
+const LANG_FLAGS = { en:'🇬🇧',es:'🇪🇸',fr:'🇫🇷',de:'🇩🇪',it:'🇮🇹',pt:'🇧🇷',nl:'🇳🇱',uk:'🇺🇦',fi:'🇫🇮',ar:'🇸🇦',zh:'🇨🇳',ja:'🇯🇵' };
+let currentLang = localStorage.getItem('forge_language') || 'en';
+
+function toggleLangDrawer() {
+  document.getElementById('langDrawer').classList.toggle('open');
+}
+
+function selectLang(code) {
+  currentLang = code;
+  localStorage.setItem('forge_language', code);
+  document.getElementById('langBtn').textContent = LANG_FLAGS[code] || '🇬🇧';
+  document.getElementById('langDrawer').classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+  const drawer = document.getElementById('langDrawer');
+  const btn = document.getElementById('langBtn');
+  if (!drawer.contains(e.target) && e.target !== btn) drawer.classList.remove('open');
+});
+
+// Apply saved language flag on load
+document.getElementById('langBtn').textContent = LANG_FLAGS[currentLang] || '🇬🇧';
+
+// ── AUTH ──────────────────────────────────────────────
+function switchTab(instance, tab) {
+  const isSignup = tab === 'signup';
+  document.getElementById('tab-signup-' + instance).classList.toggle('active', isSignup);
+  document.getElementById('tab-signin-' + instance).classList.toggle('active', !isSignup);
+  document.getElementById('form-signup-' + instance).style.display = isSignup ? 'block' : 'none';
+  document.getElementById('form-signin-' + instance).style.display = isSignup ? 'none' : 'block';
+}
+
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+}
+
+async function doSignup(instance) {
+  const name = document.getElementById(instance + '-name').value.trim();
+  const email = document.getElementById(instance + '-email').value.trim();
+  const password = document.getElementById(instance + '-password').value;
+  const code = document.getElementById(instance + '-code')?.value.trim() || '';
+  const errId = instance + '-signup-error';
+
+  if (!name) return showError(errId, 'Please enter your name.');
+  if (!email) return showError(errId, 'Please enter your email.');
+  if (!password || password.length < 6) return showError(errId, 'Password must be at least 6 characters.');
+  showError(errId, '');
+
+  const btn = document.querySelector('#form-signup-' + instance + ' .auth-btn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+
+  try {
+    const res = await fetch(BACKEND_URL + '/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name, code, language: currentLang })
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = 'Create account — start free trial';
+
+    if (!res.ok || data.error) return showError(errId, data.error || 'Sign up failed. Please try again.');
+
+    if (data.requires_confirmation) {
+      // Show confirmation message
+      const card = btn.closest('.auth-card');
+      card.innerHTML = '<div style="text-align:center;padding:20px 0"><div style="font-size:32px;margin-bottom:16px">📬</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;letter-spacing:2px;color:var(--accent);margin-bottom:12px">CHECK YOUR EMAIL</div><div style="font-size:14px;color:var(--muted);line-height:1.7">We sent a confirmation link to <strong style="color:var(--text)">' + email + '</strong>.<br>Click the link to activate your account and start your free trial.</div></div>';
+    } else {
+      window.location.href = window.location.origin + '/app';
+    }
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Create account — start free trial';
+    showError(errId, 'Connection error. Please try again.');
+  }
+}
+
+async function doSignin(instance) {
+  const email = document.getElementById(instance + '-signin-email').value.trim();
+  const password = document.getElementById(instance + '-signin-password').value;
+  const errId = instance + '-signin-error';
+
+  if (!email || !password) return showError(errId, 'Please fill in all fields.');
+  showError(errId, '');
+
+  const btn = document.querySelector('#form-signin-' + instance + ' .auth-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+
+  try {
+    const res = await fetch(BACKEND_URL + '/api/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = 'Sign in';
+
+    if (!res.ok || data.error) return showError(errId, data.error || 'Invalid email or password.');
+
+    // Store session token and redirect to app
+    if (data.access_token) {
+      localStorage.setItem('forge_access_token', data.access_token);
+      localStorage.setItem('forge_refresh_token', data.refresh_token || '');
+    }
+    window.location.href = window.location.origin + '/app';
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Sign in';
+    showError(errId, 'Connection error. Please try again.');
+  }
+}
+
+// ── SCROLL TO AUTH ────────────────────────────────────
+function scrollToAuth() {
+  document.getElementById('hero-auth').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => document.getElementById('hero-name')?.focus(), 600);
+}
+
+// ── HANDLE URL PARAMS (email confirmation) ─────────────
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('confirmed') === 'true') {
+  // Switch to sign in and show message
+  switchTab('hero', 'signin');
+  setTimeout(() => showError('hero-signin-error', ''), 0);
+}
+
+// Check for ref code in URL
+const refCode = urlParams.get('ref');
+if (refCode) {
+  document.getElementById('hero-code').value = refCode;
+  document.getElementById('final-code').value = refCode;
+}
+
+// ── INIT ──────────────────────────────────────────────
+updatePrices();
+</script>
+  <div style="position:fixed;top:60px;right:14px;z-index:99989;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);color:#ff6b35;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 7px;border-radius:4px;pointer-events:none;">STAGING</div>
+</body>
+</html>
